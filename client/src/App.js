@@ -6,7 +6,7 @@ import './App.css';
 function App() {
   const [files, setFiles] = useState([]);
   const [numbering, setNumbering] = useState(false);
-  const [numberingFormat, setNumberingFormat] = useState('01'); // "01", "001", "1", "A"
+  const [numberingFormat, setNumberingFormat] = useState('1'); // "1", "1."
   const [selectedDirectory, setSelectedDirectory] = useState('');
   const [directoryHandle, setDirectoryHandle] = useState(null);
   const [movingFileId, setMovingFileId] = useState(null);
@@ -91,8 +91,10 @@ function App() {
       if ('showDirectoryPicker' in window) {
         const handle = await window.showDirectoryPicker();
         setDirectoryHandle(handle);
-        // Try to get a more descriptive path, fallback to name
-        const displayPath = handle.name || 'Выбранная папка';
+
+        // Since we can't get full path due to security, show a more descriptive name
+        const displayPath = `📁 ${handle.name}`;
+
         setSelectedDirectory(displayPath);
         setError('');
       } else {
@@ -110,29 +112,45 @@ function App() {
     setNumbering(!numbering);
   };
 
+  const removeExistingNumbering = fileName => {
+    // Remove various numbering patterns from the beginning of filename
+    const patterns = [
+      /^\d+\.\s+/, // "1. ", "2. ", etc.
+      /^\d+_/, // "1_", "2_", etc.
+      /^\d{2,3}_/, // "01_", "001_", etc.
+      /^[A-Z]_/, // "A_", "B_", etc.
+    ];
+
+    let cleanName = fileName;
+    for (const pattern of patterns) {
+      cleanName = cleanName.replace(pattern, '');
+    }
+
+    return cleanName;
+  };
+
   const getFileName = (file, index) => {
-    if (!numbering) return file.name;
+    // If numbering is off, return clean name (remove any existing numbering)
+    if (!numbering) {
+      return removeExistingNumbering(file.name);
+    }
 
     let number;
     switch (numberingFormat) {
-      case '001':
-        number = String(index + 1).padStart(3, '0');
+      case '1.':
+        number = `${index + 1}. `;
         break;
-      case '1':
-        number = String(index + 1);
-        break;
-      case 'A':
-        number = String.fromCharCode(65 + (index % 26)); // A, B, C...
-        break;
-      default: // "01"
-        number = String(index + 1).padStart(2, '0');
+      default: // "1"
+        number = `${index + 1}_`;
     }
 
-    const nameParts = file.name.split('.');
+    // Clean the original filename from any existing numbering
+    const cleanName = removeExistingNumbering(file.name);
+    const nameParts = cleanName.split('.');
     const extension = nameParts.pop();
     const baseName = nameParts.join('.');
 
-    return `${number}_${baseName}.${extension}`;
+    return `${number}${baseName}.${extension}`;
   };
 
   const moveFileUp = id => {
@@ -287,10 +305,8 @@ function App() {
             <div className="numbering-options">
               <label>Формат нумерации:</label>
               <select value={numberingFormat} onChange={e => setNumberingFormat(e.target.value)}>
-                <option value="01">01, 02, 03...</option>
-                <option value="001">001, 002, 003...</option>
-                <option value="1">1, 2, 3...</option>
-                <option value="A">A, B, C...</option>
+                <option value="1">1_, 2_, 3_...</option>
+                <option value="1.">1. , 2. , 3. ...</option>
               </select>
             </div>
           )}
@@ -324,11 +340,6 @@ function App() {
             <button className="btn btn-secondary directory-btn" onClick={handleDirectoryPicker}>
               📁 Выбрать папку
             </button>
-            <div className="directory-hint">
-              {'showDirectoryPicker' in window
-                ? "Нажмите 'Выбрать папку' для выбора директории. Браузер покажет окно подтверждения - это нормально для безопасности."
-                : "Введите путь к папке вручную или нажмите 'Выбрать папку' и выберите любой файл из нужной директории"}
-            </div>
           </div>
         </div>
 
