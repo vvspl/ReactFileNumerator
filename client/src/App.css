@@ -3,6 +3,7 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   padding: 20px;
+  position: relative;
 }
 
 .container {
@@ -12,6 +13,51 @@
   border-radius: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
+}
+
+/* Added language selector styles */
+.language-selector {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.language-selector label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.language-selector select {
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #374151;
+  font-size: 0.85rem;
+  cursor: pointer;
+  min-width: 100px;
+  transition: all 0.2s ease;
+}
+
+.language-selector select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.language-selector select:hover {
+  border-color: #9ca3af;
 }
 
 /* Header */
@@ -391,6 +437,14 @@ h1 {
 @media (max-width: 768px) {
   .app {
     padding: 12px;
+  }
+
+  /* Mobile styles for language selector */
+  .language-selector {
+    position: static;
+    justify-content: center;
+    margin: 16px 16px 0;
+    background: rgba(255, 255, 255, 0.9);
   }
 
   h1 {

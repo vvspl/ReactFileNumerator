@@ -3,6 +3,113 @@
 import { useState, useRef } from 'react';
 import './App.css';
 
+const translations = {
+  en: {
+    title: 'File Manager',
+    subtitle: 'Select files, add numbering and save with new names',
+    fileManagement: '📁 File Management',
+    openFiles: '+ Open Files',
+    addNumbering: 'Add Numbering',
+    removeNumbering: 'Remove Numbering',
+    clearList: '× Clear List',
+    numberingFormat: 'Numbering Format:',
+    format1: '1_, 2_, 3_...',
+    format2: '1. , 2. , 3. ...',
+    saveDirectory: '💾 Save Directory',
+    directoryPlaceholder: 'Enter folder path (e.g.: C:\\Users\\Username\\Documents\\MyFiles)',
+    selectFolder: '📁 Select Folder',
+    filesCount: '📋 {count} files',
+    saving: '💾 Saving...',
+    save: '💾 Save',
+    noFiles: 'No files',
+    noFilesHint: "Click 'Open Files' to select files from your computer",
+    moveUp: 'Move up',
+    moveDown: 'Move down',
+    delete: 'Delete',
+    fileTooLarge: '{name} is too large (maximum 100MB)',
+    selectDirectoryError: 'Please select a directory for saving',
+    noFilesToSave: 'No files to save',
+    directoryError: 'Folder selection error: {error}',
+    partialSuccess:
+      'Partially successful: {success} files saved, {failed} failed. Errors: {errors}',
+    saveSuccess: 'Successfully saved {count} files to selected folder!',
+    browserNotSupported:
+      "Your browser doesn't support direct file saving. Use Chrome or Edge for full functionality.",
+    saveError: 'Save error: {error}',
+    language: '🌐 Language',
+  },
+  ru: {
+    title: 'Менеджер файлов',
+    subtitle: 'Выберите файлы, добавьте нумерацию и сохраните с новыми именами',
+    fileManagement: '📁 Управление файлами',
+    openFiles: '+ Открыть файлы',
+    addNumbering: 'Добавить нумерацию',
+    removeNumbering: 'Убрать нумерацию',
+    clearList: '× Очистить список',
+    numberingFormat: 'Формат нумерации:',
+    format1: '1_, 2_, 3_...',
+    format2: '1. , 2. , 3. ...',
+    saveDirectory: '💾 Директория для сохранения',
+    directoryPlaceholder:
+      'Введите путь к папке (например: C:\\Users\\Username\\Documents\\MyFiles)',
+    selectFolder: '📁 Выбрать папку',
+    filesCount: '📋 {count} файлов',
+    saving: '💾 Сохранение...',
+    save: '💾 Сохранить',
+    noFiles: 'Нет файлов',
+    noFilesHint: 'Нажмите "Открыть файлы" чтобы выбрать файлы с вашего компьютера',
+    moveUp: 'Переместить вверх',
+    moveDown: 'Переместить вниз',
+    delete: 'Удалить',
+    fileTooLarge: '{name} слишком большой (максимум 100MB)',
+    selectDirectoryError: 'Пожалуйста, выберите директорию для сохранения',
+    noFilesToSave: 'Нет файлов для сохранения',
+    directoryError: 'Ошибка выбора папки: {error}',
+    partialSuccess:
+      'Частично успешно: {success} файлов сохранено, {failed} не удалось. Ошибки: {errors}',
+    saveSuccess: 'Успешно сохранено {count} файлов в выбранную папку!',
+    browserNotSupported:
+      'Ваш браузер не поддерживает прямое сохранение файлов. Используйте Chrome или Edge для полной функциональности.',
+    saveError: 'Ошибка при сохранении: {error}',
+    language: '🌐 Язык',
+  },
+  uk: {
+    title: 'Менеджер файлів',
+    subtitle: 'Виберіть файли, додайте нумерацію та збережіть з новими іменами',
+    fileManagement: '📁 Управління файлами',
+    openFiles: '+ Відкрити файли',
+    addNumbering: 'Додати нумерацію',
+    removeNumbering: 'Прибрати нумерацію',
+    clearList: '× Очистити список',
+    numberingFormat: 'Формат нумерації:',
+    format1: '1_, 2_, 3_...',
+    format2: '1. , 2. , 3. ...',
+    saveDirectory: '💾 Директорія для збереження',
+    directoryPlaceholder:
+      'Введіть шлях до папки (наприклад: C:\\Users\\Username\\Documents\\MyFiles)',
+    selectFolder: '📁 Вибрати папку',
+    filesCount: '📋 {count} файлів',
+    saving: '💾 Збереження...',
+    save: '💾 Зберегти',
+    noFiles: 'Немає файлів',
+    noFilesHint: 'Натисніть "Відкрити файли" щоб вибрати файли з вашого комп\'ютера',
+    moveUp: 'Перемістити вгору',
+    moveDown: 'Перемістити вниз',
+    delete: 'Видалити',
+    fileTooLarge: '{name} занадто великий (максимум 100MB)',
+    selectDirectoryError: 'Будь ласка, виберіть директорію для збереження',
+    noFilesToSave: 'Немає файлів для збереження',
+    directoryError: 'Помилка вибору папки: {error}',
+    partialSuccess:
+      'Частково успішно: {success} файлів збережено, {failed} не вдалося. Помилки: {errors}',
+    saveSuccess: 'Успішно збережено {count} файлів у вибрану папку!',
+    browserNotSupported:
+      'Ваш браузер не підтримує пряме збереження файлів. Використовуйте Chrome або Edge для повної функціональності.',
+    saveError: 'Помилка при збереженні: {error}',
+    language: '🌐 Мова',
+  },
+};
+
 function App() {
   const [files, setFiles] = useState([]);
   const [numbering, setNumbering] = useState(false);
@@ -15,6 +122,26 @@ function App() {
   const fileInputRef = useRef(null);
   const directoryInputRef = useRef(null);
 
+  const [language, setLanguage] = useState(() => {
+    return localStorage.getItem('fileManagerLanguage') || 'ru';
+  });
+
+  const t = (key, params = {}) => {
+    let text = translations[language][key] || key;
+
+    // Replace parameters in text
+    Object.keys(params).forEach(param => {
+      text = text.replace(`{${param}}`, params[param]);
+    });
+
+    return text;
+  };
+
+  const handleLanguageChange = newLanguage => {
+    setLanguage(newLanguage);
+    localStorage.setItem('fileManagerLanguage', newLanguage);
+  };
+
   const handleFileSelect = event => {
     const selectedFiles = Array.from(event.target.files);
 
@@ -25,7 +152,7 @@ function App() {
 
     selectedFiles.forEach(file => {
       if (file.size > maxSize) {
-        errors.push(`${file.name} слишком большой (максимум 100MB)`);
+        errors.push(t('fileTooLarge', { name: file.name }));
       } else {
         validFiles.push(file);
       }
@@ -195,12 +322,12 @@ function App() {
 
   const saveFiles = async () => {
     if (!selectedDirectory && !directoryHandle) {
-      setError('Пожалуйста, выберите директорию для сохранения');
+      setError(t('selectDirectoryError'));
       return;
     }
 
     if (files.length === 0) {
-      setError('Нет файлов для сохранения');
+      setError(t('noFilesToSave'));
       return;
     }
 
@@ -236,24 +363,24 @@ function App() {
 
         if (failCount > 0) {
           setError(
-            `Частично успешно: ${successCount} файлов сохранено, ${failCount} не удалось. Ошибки: ${errors.join(
-              ', ',
-            )}`,
+            t('partialSuccess', {
+              success: successCount,
+              failed: failCount,
+              errors: errors.join(', '),
+            }),
           );
         } else {
-          alert(`Успешно сохранено ${successCount} файлов в выбранную папку!`);
+          alert(t('saveSuccess', { count: successCount }));
           clearAllFiles();
           setSelectedDirectory('');
           setDirectoryHandle(null);
         }
       } else {
-        setError(
-          'Ваш браузер не поддерживает прямое сохранение файлов. Используйте Chrome или Edge для полной функциональности.',
-        );
+        setError(t('browserNotSupported'));
       }
     } catch (error) {
       console.error('Save error:', error);
-      setError(`Ошибка при сохранении: ${error.message}`);
+      setError(t('saveError', { error: error.message }));
     } finally {
       setLoading(false);
     }
@@ -270,8 +397,17 @@ function App() {
   return (
     <div className="app">
       <div className="container">
-        <h1>Менеджер файлов</h1>
-        <p className="subtitle">Выберите файлы, добавьте нумерацию и сохраните с новыми именами</p>
+        <div className="language-selector">
+          <label>{t('language')}:</label>
+          <select value={language} onChange={e => handleLanguageChange(e.target.value)}>
+            <option value="en">English</option>
+            <option value="ru">Русский</option>
+            <option value="uk">Українська</option>
+          </select>
+        </div>
+
+        <h1>{t('title')}</h1>
+        <p className="subtitle">{t('subtitle')}</p>
 
         {error && (
           <div className="error-message">
@@ -281,32 +417,32 @@ function App() {
         )}
 
         <div className="controls">
-          <h2>📁 Управление файлами</h2>
+          <h2>{t('fileManagement')}</h2>
           <div className="button-group">
             <button className="btn btn-primary" onClick={() => fileInputRef.current?.click()}>
-              + Открыть файлы
+              {t('openFiles')}
             </button>
             <button
               className={`btn ${numbering ? 'btn-success' : 'btn-secondary'}`}
               onClick={toggleNumbering}
             >
-              # {numbering ? 'Убрать нумерацию' : 'Добавить нумерацию'}
+              # {numbering ? t('removeNumbering') : t('addNumbering')}
             </button>
             <button
               className="btn btn-danger"
               onClick={clearAllFiles}
               disabled={files.length === 0}
             >
-              × Очистить список
+              {t('clearList')}
             </button>
           </div>
 
           {numbering && (
             <div className="numbering-options">
-              <label>Формат нумерации:</label>
+              <label>{t('numberingFormat')}</label>
               <select value={numberingFormat} onChange={e => setNumberingFormat(e.target.value)}>
-                <option value="1">1_, 2_, 3_...</option>
-                <option value="1.">1. , 2. , 3. ...</option>
+                <option value="1">{t('format1')}</option>
+                <option value="1.">{t('format2')}</option>
               </select>
             </div>
           )}
@@ -327,42 +463,42 @@ function App() {
         </div>
 
         <div className="directory-selector">
-          <h3>💾 Директория для сохранения</h3>
+          <h3>{t('saveDirectory')}</h3>
           <div className="directory-controls">
             <input
               type="text"
               className="directory-input"
-              placeholder="Введите путь к папке (например: C:\Users\Username\Documents\MyFiles)"
+              placeholder={t('directoryPlaceholder')}
               value={selectedDirectory}
               onChange={handleDirectoryChange}
               readOnly={directoryHandle !== null}
             />
             <button className="btn btn-secondary directory-btn" onClick={handleDirectoryPicker}>
-              📁 Выбрать папку
+              {t('selectFolder')}
             </button>
           </div>
         </div>
 
         <div className="file-list">
           <div className="file-list-header">
-            <h3>📋 {files.length} файлов</h3>
+            <h3>{t('filesCount', { count: files.length })}</h3>
             {files.length > 0 && (
               <button
                 className="btn btn-success"
                 onClick={saveFiles}
                 disabled={(!selectedDirectory && !directoryHandle) || loading}
               >
-                {loading ? '💾 Сохранение...' : '💾 Сохранить'}
+                {loading ? t('saving') : t('save')}
               </button>
             )}
           </div>
 
           {files.length === 0 ? (
             <div className="empty-state">
-              <p>Нет файлов</p>
-              <p>Нажмите "Открыть файлы" чтобы выбрать файлы с вашего компьютера</p>
+              <p>{t('noFiles')}</p>
+              <p>{t('noFilesHint')}</p>
               <button className="btn btn-primary" onClick={() => fileInputRef.current?.click()}>
-                + Открыть файлы
+                {t('openFiles')}
               </button>
             </div>
           ) : (
@@ -383,7 +519,7 @@ function App() {
                       className="btn-icon"
                       onClick={() => moveFileUp(file.id)}
                       disabled={index === 0}
-                      title="Переместить вверх"
+                      title={t('moveUp')}
                     >
                       ↑
                     </button>
@@ -391,14 +527,14 @@ function App() {
                       className="btn-icon"
                       onClick={() => moveFileDown(file.id)}
                       disabled={index === files.length - 1}
-                      title="Переместить вниз"
+                      title={t('moveDown')}
                     >
                       ↓
                     </button>
                     <button
                       className="btn-icon btn-danger"
                       onClick={() => removeFile(file.id)}
-                      title="Удалить"
+                      title={t('delete')}
                     >
                       🗑
                     </button>
